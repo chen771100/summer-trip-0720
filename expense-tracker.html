@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>環島記帳分帳小工具 🧾</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+  * { font-family: 'Noto Sans TC', sans-serif; }
+  .expense-item { animation: slideIn 0.2s ease-out; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+</style>
+</head>
+<body class="bg-gray-50 pb-20">
+
+<div class="max-w-lg mx-auto px-4 py-6" id="app">
+  <h1 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-calculator mr-2 text-yellow-500"></i>環島記帳分帳</h1>
+  <p class="text-xs text-gray-400 mt-1">2026/7/20 ～ 7/24 ・資料自動存在瀏覽器</p>
+
+  <!-- 人數設定 -->
+  <div class="bg-white rounded-xl shadow-sm p-4 mt-4">
+    <label class="text-sm font-medium text-gray-600">同行人數</label>
+    <div class="flex gap-2 mt-1">
+      <input id="peopleCount" type="number" min="1" max="10" class="w-20 border rounded-lg px-3 py-2 text-center text-lg font-bold" onchange="savePeople()">
+      <div id="peopleNames" class="flex-1 grid gap-1"></div>
+    </div>
+  </div>
+
+  <!-- 新增開銷 -->
+  <div class="bg-white rounded-xl shadow-sm p-4 mt-3">
+    <div class="grid grid-cols-5 gap-2">
+      <select id="expDay" class="col-span-1 border rounded-lg px-2 py-2 text-sm">
+        <option value="1">D1</option><option value="2">D2</option><option value="3">D3</option><option value="4">D4</option><option value="5">D5</option>
+      </select>
+      <input id="expItem" placeholder="項目" class="col-span-2 border rounded-lg px-3 py-2 text-sm">
+      <input id="expAmount" type="number" placeholder="金額" class="col-span-1 border rounded-lg px-3 py-2 text-sm">
+      <select id="expPayer" class="col-span-1 border rounded-lg px-2 py-2 text-sm"></select>
+    </div>
+    <button onclick="addExpense()" class="w-full mt-2 bg-indigo-600 text-white rounded-lg py-2 text-sm font-bold hover:bg-indigo-700 transition">＋ 新增</button>
+  </div>
+
+  <!-- 總覽 -->
+  <div class="grid grid-cols-2 gap-3 mt-3">
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-xs text-gray-400">總支出</p>
+      <p class="text-2xl font-black text-indigo-600" id="totalAmount">$0</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 text-center">
+      <p class="text-xs text-gray-400">每人平均</p>
+      <p class="text-2xl font-black text-green-600" id="perPerson">$0</p>
+    </div>
+  </div>
+
+  <!-- 每人結算 -->
+  <div id="settlement" class="bg-white rounded-xl shadow-sm p-4 mt-3"></div>
+
+  <!-- 開銷列表 -->
+  <div id="expenseList" class="mt-3 space-y-1"></div>
+
+  <!-- 清除 -->
+  <div class="flex gap-2 mt-4">
+    <button onclick="exportData()" class="flex-1 text-xs bg-green-50 hover:bg-green-100 text-green-600 py-2 rounded-lg transition"><i class="fa-solid fa-download mr-1"></i>匯出資料</button>
+    <button onclick="document.getElementById('importInput').click()" class="flex-1 text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 rounded-lg transition"><i class="fa-solid fa-upload mr-1"></i>匯入資料</button>
+    <button onclick="if(confirm('確定清除所有資料？')){localStorage.removeItem('tripData');location.reload()}" class="flex-1 text-xs text-gray-400 hover:text-red-500 transition py-2 rounded-lg">清除</button>
+  </div>
+  <input id="importInput" type="file" accept=".json" style="display:none" onchange="importData(event)">
+</div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('tripData')) || { people: [], expenses: [] };
+const DAYS = ['DAY 1 宜蘭→台中','DAY 2 台中→台南','DAY 3 美妝主題日','DAY 4 台南→台中','DAY 5 台中→宜蘭'];
+
+function save() { localStorage.setItem('tripData', JSON.stringify(data)); }
+
+function savePeople() {
+  const count = parseInt(document.getElementById('peopleCount').value) || 1;
+  while (data.people.length < count) data.people.push({ name: `人${data.people.length+1}` });
+  if (data.people.length > count) data.people = data.people.slice(0, count);
+  save(); render();
+}
+
+function render() {
+  const pc = document.getElementById('peopleCount'); pc.value = data.people.length;
+  
+  // 姓名輸入
+  const namesDiv = document.getElementById('peopleNames'); namesDiv.innerHTML = '';
+  data.people.forEach((p, i) => {
+    const inp = document.createElement('input');
+    inp.className = 'w-full border rounded px-2 py-1 text-xs text-center';
+    inp.value = p.name; inp.placeholder = `人${i+1}`;
+    inp.onchange = () => { data.people[i].name = inp.value || `人${i+1}`; save(); render(); };
+    namesDiv.appendChild(inp);
+  });
+
+  // 付款人選單
+  const payerSel = document.getElementById('expPayer'); payerSel.innerHTML = '';
+  data.people.forEach((p, i) => {
+    const opt = document.createElement('option'); opt.value = i; opt.text = p.name; payerSel.appendChild(opt);
+  });
+
+  // 加總
+  let total = 0;
+  data.expenses.forEach(e => total += e.amount);
+  document.getElementById('totalAmount').textContent = '$' + total.toLocaleString();
+  const pp = data.people.length ? Math.round(total / data.people.length) : 0;
+  document.getElementById('perPerson').textContent = '$' + pp.toLocaleString();
+
+  // 每人結算
+  const settleDiv = document.getElementById('settlement');
+  let paidBy = {};
+  data.people.forEach((_, i) => paidBy[i] = 0);
+  data.expenses.forEach(e => paidBy[e.payer] = (paidBy[e.payer] || 0) + e.amount);
+  
+  let html = '<div class="text-xs font-bold text-gray-500 mb-2"><i class="fa-solid fa-scale-balanced mr-1"></i>分帳結算</div>';
+  data.people.forEach((p, i) => {
+    const paid = paidBy[i] || 0;
+    const diff = paid - pp;
+    html += `<div class="flex justify-between py-1 text-sm border-b border-gray-50 last:border-0">
+      <span>${p.name}</span>
+      <span class="text-gray-400">付 $${paid.toLocaleString()}</span>
+      <span class="${diff >= 0 ? 'text-green-600' : 'text-red-500'} font-bold">${diff >= 0 ? '應收 $' : '應付 $'}${Math.abs(diff).toLocaleString()}</span>
+    </div>`;
+  });
+  settleDiv.innerHTML = html;
+
+  // 開銷列表
+  const listDiv = document.getElementById('expenseList'); listDiv.innerHTML = '';
+  let lastDay = -1;
+  data.expenses.forEach((e, i) => {
+    if (e.day !== lastDay) {
+      const hdr = document.createElement('div');
+      hdr.className = 'text-xs font-bold text-gray-500 pt-3 pb-1';
+      hdr.textContent = `${DAYS[e.day-1]}`;
+      listDiv.appendChild(hdr);
+      lastDay = e.day;
+    }
+    const div = document.createElement('div');
+    div.className = 'expense-item bg-white rounded-lg px-4 py-2.5 flex justify-between items-center shadow-sm';
+    div.innerHTML = `
+      <div>
+        <span class="font-medium text-sm">${e.item}</span>
+        <span class="text-xs text-gray-400 ml-2">${data.people[e.payer]?.name || '?'}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-indigo-600">$${e.amount.toLocaleString()}</span>
+        <button onclick="deleteExpense(${i})" class="text-gray-300 hover:text-red-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    `;
+    listDiv.appendChild(div);
+  });
+}
+
+function addExpense() {
+  const day = parseInt(document.getElementById('expDay').value);
+  const item = document.getElementById('expItem').value.trim();
+  const amount = parseInt(document.getElementById('expAmount').value);
+  const payer = parseInt(document.getElementById('expPayer').value);
+  if (!item || !amount) return alert('請填項目跟金額');
+  data.expenses.push({ day, item, amount, payer, id: Date.now() });
+  document.getElementById('expItem').value = ''; document.getElementById('expAmount').value = '';
+  save(); render();
+}
+
+function deleteExpense(i) {
+  data.expenses.splice(i, 1);
+  save(); render();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `環島記帳_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.people || !imported.expenses) throw '格式錯誤';
+      if (confirm(`匯入 ${imported.expenses.length} 筆資料？\n（會覆蓋目前資料）`)) {
+        data = imported; save(); render();
+      }
+    } catch(err) { alert('檔案格式錯誤，請確認是記帳工具匯出的 JSON'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+render();
+</script>
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>
