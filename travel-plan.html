@@ -146,7 +146,72 @@
         </div>
     </div>
 
-    <!-- ===== 每日行程 ===== -->
+    <!-- ===== 🎨 布布加料區 ===== -->
+
+    <!-- 倒數計時器 -->
+    <div class="max-w-lg mx-auto px-4 mt-5">
+        <div class="bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 rounded-2xl p-5 text-white text-center shadow-lg">
+            <div class="text-3xl mb-1">🚗</div>
+            <div class="text-sm font-bold opacity-90">距離出發還有</div>
+            <div id="countdown" class="text-3xl font-black mt-1 tracking-wider">-- 天 -- 小時</div>
+            <div class="text-xs opacity-75 mt-1">2026/07/20 08:00 羅東出發 🏁</div>
+        </div>
+    </div>
+
+    <!-- 打包清單 -->
+    <div class="max-w-lg mx-auto px-4 mt-3">
+        <div class="bg-white rounded-2xl shadow-lg p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-suitcase mr-1 text-blue-500"></i> 打包清單</h2>
+                <button onclick="resetPacking()" class="text-xs text-gray-400 hover:text-red-500">重設</button>
+            </div>
+            <div class="space-y-2 text-sm" id="packingList"></div>
+            <div class="mt-3 flex gap-2">
+                <input id="packingInput" placeholder="新增項目..." class="flex-1 border rounded-lg px-3 py-2 text-xs">
+                <button onclick="addPackingItem()" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600">＋</button>
+            </div>
+            <div class="mt-3 bg-blue-50 rounded-lg p-3">
+                <div class="flex justify-between text-xs text-blue-700 mb-1">
+                    <span>準備進度</span>
+                    <span id="packingProgressText">0%</span>
+                </div>
+                <div class="w-full bg-blue-200 rounded-full h-2">
+                    <div id="packingProgressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width:0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 車上玩什麼 -->
+    <div class="max-w-lg mx-auto px-4 mt-3">
+        <div class="bg-white rounded-2xl shadow-lg p-5">
+            <h2 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-music mr-1 text-purple-500"></i> 車上玩什麼 🚗🎶</h2>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-purple-50 rounded-xl p-3 text-center hover:shadow transition cursor-pointer" onclick="alert('🔊 一人一首歌輪流播，看誰先睡著！')">
+                    <div class="text-xl mb-1">🎤</div>
+                    <div class="font-medium">車內卡拉OK</div>
+                    <div class="text-gray-400">一人一首接力唱</div>
+                </div>
+                <div class="bg-green-50 rounded-xl p-3 text-center hover:shadow transition cursor-pointer" onclick="alert('🚗 看到白色車喊 TOYOTA，看到红色車喊 法拉利！')">
+                    <div class="text-xl mb-1">🚘</div>
+                    <div class="font-medium">猜車牌遊戲</div>
+                    <div class="text-gray-400">看到特定車款加分</div>
+                </div>
+                <div class="bg-yellow-50 rounded-xl p-3 text-center hover:shadow transition cursor-pointer" onclick="alert('📝 憑記憶說出今天經過的 5 個地名，說不出來的請客！')">
+                    <div class="text-xl mb-1">🧠</div>
+                    <div class="font-medium">地名記憶賽</div>
+                    <div class="text-gray-400">輸的請喝飲料</div>
+                </div>
+                <div class="bg-pink-50 rounded-xl p-3 text-center hover:shadow transition cursor-pointer" onclick="alert('🤳 車窗外的風景 + 手指愛心 = 完美限動！')">
+                    <div class="text-xl mb-1">📸</div>
+                    <div class="font-medium">IG 限動挑戰</div>
+                    <div class="text-gray-400">誰拍的最有梗</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 每日行程 -->
     <div class="max-w-lg mx-auto px-4 mt-5 space-y-4 pb-20">
 
         <!-- DAY 1 -->
@@ -319,7 +384,7 @@
             </div>
         </div>
 
-        <!-- DAY 5 -->
+        <!-- DAY 5 ｜ 分支路線 -->
         <div class="bg-white rounded-2xl shadow overflow-hidden">
             <button onclick="toggleDay('day5',this)" class="w-full px-5 py-4 text-left flex justify-between items-center bg-gradient-to-r from-green-50 to-white">
                 <div>
@@ -329,32 +394,62 @@
                 <i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-300"></i>
             </button>
             <div id="day5" class="day-content px-5 py-4 border-t">
-                <a href="https://www.google.com/maps/dir/挪威森林台中漫活館/小叮噹科學主題樂園/觀自齋蔬食景觀餐廳/羅東" target="_blank" class="map-placeholder rounded-xl p-3 mb-4 flex items-center gap-3 hover:shadow transition">
+                <a href="https://www.google.com/maps/dir/挪威森林台中漫活館/新竹車站/小叮噹科學主題樂園/果然匯桃園/羅東" target="_blank" class="map-placeholder rounded-xl p-3 mb-4 flex items-center gap-3 hover:shadow transition">
                     <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg"><i class="fa-solid fa-map"></i></div>
-                    <div class="flex-1 text-sm"><span class="font-medium">查看路線 </span><span class="text-gray-500">台中→新竹→小叮噹→桃園→宜蘭</span></div>
+                    <div class="flex-1 text-sm"><span class="font-medium">查看路線 </span><span class="text-gray-500">台中→新竹→分隊→桃園→宜蘭</span></div>
                     <i class="fa-solid fa-arrow-up-right-from-square text-gray-400 text-xs"></i>
                 </a>
-                <ul class="space-y-4 relative pl-8">
-                    <li class="relative"><div class="timeline-dot" style="background:#6366f1;box-shadow-color:#6366f1"></div>
-                        <p class="text-xs font-bold text-indigo-600">10:00</p>
-                        <p class="font-medium">🚗 新竹車站</p>
-                    </li>
-                    <li class="relative"><div class="timeline-dot" style="background:#3b82f6;box-shadow-color:#3b82f6"></div>
-                        <p class="text-xs font-bold text-blue-600">10:30 - 14:30</p>
-                        <p class="font-medium">🚀 小叮噹科學主題樂園</p>
-                    </li>
-                    <li class="relative"><div class="timeline-dot" style="background:#22c55e;box-shadow-color:#22c55e"></div>
-                        <p class="text-xs font-bold text-green-600">18:00</p>
-                        <p class="font-medium">🌿 觀自齋蔬食景觀餐廳（桃園）</p>
-                        <div class="mt-2 bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
-                            <i class="fa-solid fa-bolt mr-1"></i> <b>充電提醒：</b>若電量不足，建議桃園市區或國道休息站 U-POWER / EVOASIS 補電再進雪隧
-                        </div>
-                    </li>
-                    <li class="relative"><div class="timeline-dot" style="background:#1e1b4b;box-shadow-color:#1e1b4b"></div>
-                        <p class="text-xs font-bold text-gray-800">19:00 🏁</p>
-                        <p class="font-medium text-lg font-bold">🏠 平安返回宜蘭！<i class="fa-solid fa-house text-gray-400 ml-2"></i></p>
-                    </li>
-                </ul>
+                <!-- 共同行程 -->
+                <div class="mb-4 bg-gray-50 rounded-xl p-3 border border-gray-200">
+                    <p class="text-xs font-bold text-gray-500 mb-2"><i class="fa-solid fa-people-group mr-1"></i> 共同行程</p>
+                    <ul class="space-y-3 relative pl-8">
+                        <li class="relative"><div class="timeline-dot" style="background:#6366f1;box-shadow-color:#6366f1"></div>
+                            <p class="text-xs font-bold text-indigo-600">10:00</p>
+                            <p class="font-medium">🚗 新竹車站（全員）</p>
+                        </li>
+                    </ul>
+                </div>
+                <!-- 分支 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- 隊伍一 -->
+                    <div class="bg-blue-50 rounded-xl p-3 border border-blue-200">
+                        <p class="text-xs font-bold text-blue-600 mb-2"><i class="fa-solid fa-user-astronaut mr-1"></i> 隊伍一</p>
+                        <ul class="space-y-2 relative pl-6 text-sm">
+                            <li class="relative"><div class="timeline-dot" style="background:#3b82f6;box-shadow-color:#3b82f6;left:-16px;top:2px;width:10px;height:10px"></div>
+                                <p class="text-xs font-bold text-blue-600">10:30 - 14:30</p>
+                                <p class="font-medium text-xs">🚀 小叮噹科學主題樂園</p>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- 隊伍二 -->
+                    <div class="bg-pink-50 rounded-xl p-3 border border-pink-200">
+                        <p class="text-xs font-bold text-pink-600 mb-2"><i class="fa-solid fa-utensils mr-1"></i> 隊伍二</p>
+                        <ul class="space-y-2 relative pl-6 text-sm">
+                            <li class="relative"><div class="timeline-dot" style="background:#ec4899;box-shadow-color:#ec4899;left:-16px;top:2px;width:10px;height:10px"></div>
+                                <p class="text-xs font-bold text-pink-600">11:30</p>
+                                <p class="font-medium text-xs">🥗 果然匯（桃園統領店）</p>
+                                <p class="text-xs text-gray-400">蔬食百匯吃到飽</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 會合 -->
+                <div class="mt-4 bg-green-50 rounded-xl p-3 border border-green-200">
+                    <p class="text-xs font-bold text-green-600 mb-2"><i class="fa-solid fa-handshake mr-1"></i> 會合</p>
+                    <ul class="space-y-3 relative pl-8">
+                        <li class="relative"><div class="timeline-dot" style="background:#22c55e;box-shadow-color:#22c55e"></div>
+                            <p class="text-xs font-bold text-green-600">18:00</p>
+                            <p class="font-medium">🚗 桃園會合後一起返程</p>
+                        </li>
+                        <li class="relative"><div class="timeline-dot" style="background:#1e1b4b;box-shadow-color:#1e1b4b"></div>
+                            <p class="text-xs font-bold text-gray-800">19:00 🏁</p>
+                            <p class="font-medium text-lg font-bold">🏠 平安返回宜蘭！<i class="fa-solid fa-house text-gray-400 ml-2"></i></p>
+                        </li>
+                    </ul>
+                    <div class="mt-2 bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
+                        <i class="fa-solid fa-bolt mr-1"></i> <b>充電提醒：</b>若電量不足，桃園 U-POWER / EVOASIS 補電再進雪隧
+                    </div>
+                </div>
             </div>
         </div>
 
